@@ -12,11 +12,13 @@ function App() {
   const [products, setProducts] = useState([]);
   
   // 4 - custom hooks
-  const {data: items} = useFetch(url);
+  const {data: items, httpConfig, loading} = useFetch(url);
 
 
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
+
+  
 
   // 1 - resgatando dados
   // useEffect(() => { //Não funcionou com o async aqui
@@ -41,20 +43,23 @@ function App() {
         price,
       };
     
-      const res = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(product)
-      });
+      // const res = await fetch(url, {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json"
+      //   },
+      //   body: JSON.stringify(product)
+      // });
       
 
-      // 3 - carregamento dinâmico
+      // // 3 - carregamento dinâmico
 
-      const addedProduct = await res.json()
+      // const addedProduct = await res.json()
 
-      setProducts((prevProducts) => [...prevProducts, addedProduct]);
+      // setProducts((prevProducts) => [...prevProducts, addedProduct]);
+
+      // 5 - Refatorando POST
+      httpConfig(product, "POST");
       setName("");
       setPrice("");
     };
@@ -63,13 +68,16 @@ function App() {
   return (
     <div className="App">
       <h1>Lista de Produtos</h1>
-      <ul>
+      {loading && <p>Carregando Dados...</p>}
+      {!loading && (
+        <ul>
         {items && items.map((product) => (
           <li key={product.id}>
             {product.name} - R$: {product.price}
           </li>
         ))}
       </ul>
+      )}
       <div className="add-product">
         <form onSubmit={handleSubmit}>
           <label>
@@ -86,7 +94,8 @@ function App() {
             name="price" 
             onChange={(e) => setPrice(e.target.value)} />
           </label>
-          <input type="submit" value= "Criar" />
+          { /* 7 - state de loading no POST*/}
+          {loading && <input type="submit" value= "Criar" />}
         </form>
       </div>
     </div>
